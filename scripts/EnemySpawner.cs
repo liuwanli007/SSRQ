@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,9 +9,15 @@ public class EnemySpawner : MonoBehaviour {
     public  float waveRate=0.3f;
 
     public static int CountEnemyAlive = 0;
+
+    private Coroutine coroutine;
     void Start()
     {
-        StartCoroutine(SpawnEnemy());
+        coroutine= StartCoroutine(SpawnEnemy());
+    }
+    public void Stop()
+    { 
+        StopCoroutine(coroutine);
     }
     IEnumerator SpawnEnemy()
     {
@@ -30,5 +36,6 @@ public class EnemySpawner : MonoBehaviour {
             }
             yield return new WaitForSeconds(waveRate);
         }
+       
     }
 }
