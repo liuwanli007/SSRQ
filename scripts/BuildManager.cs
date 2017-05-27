@@ -1,78 +1,124 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+
 public class BuildManager : MonoBehaviour {
-    public PTData PT1Data;
-    public PTData PT2Data;
-    public PTData PT3Data;
-    //被选中的炮台类型
-    private PTData selectedPT; 
+     
+    public PTData PT1;
+    public PTData PT2;
+    public PTData PT3;
+
+    private PTData selectedPT;//当前选择的炮台类型
+
+    //当前点击的塔台
+    private Twor selectTwor;
+
+    public Text moneyText;
+    private int money = 1000;
 
     public Animator moneyAnimator;
-    public Text moneyText;
-    public int money = 1000;
 
+    //升级UI
+    public GameObject upgradeUI;
+    public Button upgrade;
 
-    public void ChangeMoney(int change=50)
+    void ChangeMoney(int change = 0)
     {
         money += change;
-        moneyText.text = "￥" + money;
+        moneyText.text = "￥" + money; 
     }
+
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
             if (EventSystem.current.IsPointerOverGameObject()==false)
             {
-                //开发炮台的建造
+                //鼠标不再UI界面上
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hit;
-                bool isCollider = Physics.Raycast(ray,out hit,1000,LayerMask.GetMask("Twor"));
+                bool isCollider = Physics.Raycast(ray,out hit, 10000, LayerMask.GetMask("Twor"));
                 if (isCollider)
                 {
-                    Twor twor = hit.collider.GetComponent<Twor>();
+                    Twor twor = hit.collider.GetComponent<Twor>();//得到选中的炮台；
                     if (selectedPT != null && twor.PTGo == null)
-                    { 
+                    {
+                        //当前塔台为空可以创建
                         if (money > selectedPT.cost)
                         {
                             ChangeMoney(-selectedPT.cost);
-                            twor.BuildPT(selectedPT.PTPerfab);   
+                            twor.BuildPT(selectedPT);
                         }
                         else
                         {
-                            //钱不够； 
-                            moneyAnimator.SetTrigger("Flicker"); 
+                            //提示钱不够
+                            moneyAnimator.SetTrigger("Flicker");
                         }
                     }
-                    else
+                    else if(twor.PTGo!=null)
                     {
-                        //TODO
+                        //TODO升级炮台
+               
+                        if (twor == selectTwor && upgradeUI.activeInHierarchy)
+                        {
+                            HideUpgradeUI();
+                        }
+                        else
+                        {
+                            Vector3 v = twor.transform.position;
+                            v.y = 2.5f;
+                            ShowUpgradeUI(v, twor.isUpgraded);
+                        }
+                        selectTwor = twor;
                     }
                 }
             }
         }
     }
-    public void OnPT1Selected(bool inOn)
+    public void OnPT1selected(bool isOn)
     {
-        if (inOn)
-        {
-            selectedPT = PT1Data;
-        }
+        selectedPT = PT1;
     }
-    public void OnPT2Selected(bool inOn)
+    public void OnPT2selected(bool isOn)
     {
-        if (inOn)
-        {
-            selectedPT = PT2Data;
-        }
+        selectedPT = PT2;
     }
-    public void OnPT3Selected(bool inOn)
+    public void OnPT3selected(bool isOn)
     {
-        if (inOn)
+        selectedPT = PT3;
+    }
+
+    void ShowUpgradeUI(Vector3 pos,bool isDisableUpgrade=false)
+    {
+        upgradeUI.SetActive(true);
+        upgradeUI.transform.position = pos;
+        upgrade.interactable = !isDisableUpgrade;
+    }
+    void HideUpgradeUI()
+    {
+        upgradeUI.SetActive(false);
+    }
+    public void OnUpgradeButtonDown(){
+        if (money >= selectTwor.ptData.costUpgrade)
         {
-            selectedPT = PT3Data;
+            ChangeMoney(-selectTwor.ptData.costUpgrade);
+            selectTwor.Upgrade();
         }
-    } 
+        else
+        {
+            //提示钱不够
+            moneyAnimator.SetTrigger("Flicker");
+        }
+        HideUpgradeUI();
+    
+    }
+    public void OnDestroyButtonDown()
+    {
+        selectTwor.DestroyPT();
+        HideUpgradeUI();
+
+    }
+
 }
