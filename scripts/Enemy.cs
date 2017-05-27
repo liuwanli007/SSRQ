@@ -1,15 +1,25 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Enemy : MonoBehaviour {
     private Transform[] positions;
     private int index = 0;
     public int speed =20;
 
+    public GameObject boomEffect;
+
+
+    public float hp = 200;
+    public Slider hpSlider;
+    private float totalHp;
+
 	// Use this for initialization
 	void Start () {
         positions = waypoints.positions;
+
+        totalHp = hp;
 	}
      void RotateTo()
     {
@@ -34,7 +44,6 @@ public class Enemy : MonoBehaviour {
          if (index == positions.Length )
          {
              ReachDestination();
-           
          }
      }
 	// Update is called once per frame
@@ -45,6 +54,8 @@ public class Enemy : MonoBehaviour {
 	}
     void ReachDestination()
     {
+        GaneManager.Instance.Failed();
+       // Debug.Log("asdf");
         GameObject.Destroy(this.gameObject);
     }
     void OnDestroy()
@@ -52,8 +63,20 @@ public class Enemy : MonoBehaviour {
         EnemySpawner.CountEnemyAlive--;
        
     }
-    public void TakeDamage(int damage)
+    public void TakeDamage(float damage)
     {
-
+        if (hp <= 0) return;
+        hp -= damage;
+        hpSlider.value =    (float)hp / totalHp;
+        if (hp <= 0)
+        {
+            Die();
+        }
+    }
+    void Die()
+    {
+        GameObject effect= GameObject.Instantiate(boomEffect, transform.position, transform.rotation);
+        Destroy(effect, 1.5f);
+        Destroy(this.gameObject);
     }
 }
