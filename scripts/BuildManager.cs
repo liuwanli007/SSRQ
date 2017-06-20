@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -12,11 +12,13 @@ public class BuildManager : MonoBehaviour {
 
     private PTData selectedPT;//当前选择的炮台类型
 
+
+    public static BuildManager MoneyChange;
     //当前点击的塔台
     private Twor selectTwor;
 
     public Text moneyText;
-    private int money = 1000;
+    private int money = 500;
 
     public Animator moneyAnimator;
 
@@ -24,12 +26,15 @@ public class BuildManager : MonoBehaviour {
     public GameObject upgradeUI;
     public Button upgrade;
 
-    void ChangeMoney(int change = 0)
+    public void ChangeMoney(int change = 50)
     {
         money += change;
         moneyText.text = "￥" + money; 
     }
-
+    void Awake()
+    {
+        MoneyChange = this;
+    }
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
@@ -39,13 +44,13 @@ public class BuildManager : MonoBehaviour {
                 //鼠标不再UI界面上
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hit;
-                bool isCollider = Physics.Raycast(ray,out hit, 10000, LayerMask.GetMask("Twor"));
+                bool isCollider = Physics.Raycast(ray,out hit, 1000000, LayerMask.GetMask("Twor"));
                 if (isCollider)
                 {
                     Twor twor = hit.collider.GetComponent<Twor>();//得到选中的炮台；
                     if (selectedPT != null && twor.PTGo == null)
                     {
-                        //当前塔台为空可以创建
+                        //当前塔台为空可以创建a
                         if (money > selectedPT.cost)
                         {
                             ChangeMoney(-selectedPT.cost);
@@ -57,7 +62,7 @@ public class BuildManager : MonoBehaviour {
                             moneyAnimator.SetTrigger("Flicker");
                         }
                     }
-                    else if(twor.PTGo!=null)
+                    else if(twor.PTGo != null)
                     {
                         //TODO升级炮台
                
@@ -68,7 +73,7 @@ public class BuildManager : MonoBehaviour {
                         else
                         {
                             Vector3 v = twor.transform.position;
-                            v.y = 2.5f;
+                            v.y = 5f;
                             ShowUpgradeUI(v, twor.isUpgraded);
                         }
                         selectTwor = twor;
@@ -79,15 +84,21 @@ public class BuildManager : MonoBehaviour {
     }
     public void OnPT1selected(bool isOn)
     {
-        selectedPT = PT1;
+       
+            selectedPT = PT1;
+        
     }
     public void OnPT2selected(bool isOn)
     {
-        selectedPT = PT2;
+       
+            selectedPT = PT2;
+        
     }
     public void OnPT3selected(bool isOn)
     {
-        selectedPT = PT3;
+        
+            selectedPT = PT3;
+        
     }
 
     void ShowUpgradeUI(Vector3 pos,bool isDisableUpgrade=false)

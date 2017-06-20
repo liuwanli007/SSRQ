@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,10 +6,12 @@ using UnityEngine.UI;
 public class Enemy : MonoBehaviour {
     private Transform[] positions;
     private int index = 0;
-    public int speed =20;
+    public float speed =20;
 
     public GameObject boomEffect;
 
+    //杀死目标所得钱数
+    public int MoneyAdd = 50;
 
     public float hp = 200;
     public Slider hpSlider;
@@ -20,6 +22,7 @@ public class Enemy : MonoBehaviour {
         positions = waypoints.positions;
 
         totalHp = hp;
+        hpSlider = GetComponentInChildren<Slider>();
 	}
      void RotateTo()
     {
@@ -52,6 +55,7 @@ public class Enemy : MonoBehaviour {
         RotateTo();
         Move();
 	}
+    //到达终点
     void ReachDestination()
     {
         GaneManager.Instance.Failed();
@@ -65,6 +69,10 @@ public class Enemy : MonoBehaviour {
     }
     public void TakeDamage(float damage)
     {
+        if (damage != 50 && damage != 70)
+        {
+            speed =speed-0.01f;
+        }
         if (hp <= 0) return;
         hp -= damage;
         hpSlider.value =    (float)hp / totalHp;
@@ -73,8 +81,9 @@ public class Enemy : MonoBehaviour {
             Die();
         }
     }
-    void Die()
+   public void Die()
     {
+        BuildManager.MoneyChange.ChangeMoney(MoneyAdd);
         GameObject effect= GameObject.Instantiate(boomEffect, transform.position, transform.rotation);
         Destroy(effect, 1.5f);
         Destroy(this.gameObject);

@@ -4,10 +4,6 @@ using UnityEngine;
 
 public class ViewController : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-		
-	}
     public int speed = 1;
     public int mousespeed = 100;
 	// Update is called once per frame

@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -36,6 +36,11 @@ public class EnemySpawner : MonoBehaviour {
             }
             yield return new WaitForSeconds(waveRate);
         }
+        while (CountEnemyAlive > 0)
+        {
+            yield return 0;
+        }
+        GaneManager.Instance.Win();
        
     }
 }
